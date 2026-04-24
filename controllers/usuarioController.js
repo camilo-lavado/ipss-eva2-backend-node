@@ -53,10 +53,36 @@ const listarUsuarios = async (req, res) => {
     }
 };
 
+const login = async (req, res) => {
+    try {
+        console.log("\n--- NUEVO INTENTO DE LOGIN ---");
+        console.log("[DEBUG] Datos recibidos en body:", req.body);
+        
+        const { nombre_usuario, password } = req.body;
+
+        if (!nombre_usuario || !password) {
+            return res.status(400).json({ error: 'Faltan datos' });
+        }
+
+        const usuario = await Usuario.login(nombre_usuario, password);
+
+        if (!usuario) {
+            return res.status(401).json({ error: 'Credenciales inválidas o usuario inactivo' });
+        }
+
+        res.json({ mensaje: 'Login exitoso', usuario });
+
+    } catch (error) {
+        console.error('Error en el login:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+};
+
 module.exports = {
     crearUsuario,
     obtenerUsuarioPorId,
     actualizarUsuario,
     eliminarUsuario,
-    listarUsuarios
+    listarUsuarios,
+    login
 };
