@@ -1,13 +1,13 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
+const sequelize = require('./config/db');
 
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-app.use(bodyParser.json());
+app.use(express.json());
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -18,13 +18,11 @@ app.use((req, res, next) => {
 });
 
 const routes = require('./routes/index.js');
-
 app.use('/api', routes);
 
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Error interno del servidor' });
-})
+app.use((req, res, next) => {
+    res.status(404).json({ error: 'Ruta no encontrada' });
+});
 
 app.use((err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
@@ -35,12 +33,17 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-    console.error('Error no manejado:', err);
-    res.status(404).json({ error: 'Ruta no encontrada' });
+    console.error(err.stack);
+    res.status(500).json({ error: 'Error interno del servidor' });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Servidor escuchando en el puerto ${PORT}`);
-});
-
+sequelize.authenticate()
+    .then(() => {
+        console.log('Conexión a la base de datos establecida correctamente.');
+        app.listen(PORT, () => {
+            console.log(`Servidor escuchando en el puerto ${PORT}`);
+        });
+    })
+    .catch(err => {
+        console.error('No se pudo conectar a la base de datos:', err);
+    });

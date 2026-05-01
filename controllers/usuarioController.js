@@ -1,79 +1,98 @@
 const Usuario = require('../models/usuario');
+const bcrypt = require('bcrypt');
 
 const crearUsuario = async (req, res) => {
     try {
-        const nuevoUsuario = await Usuario.crear(req.body);
+        const nuevoUsuario = await Usuario.create(req.body);
         res.status(201).json(nuevoUsuario);
     } catch (error) {
-        console.error('Error al crear usuario:', error);
         res.status(500).json({ error: 'Error al crear usuario' });
     }
 };
 
 const obtenerUsuarioPorId = async (req, res) => {
     try {
-        const usuario = await Usuario.obtenerPorId(req.params.id);
+        const usuario = await Usuario.findByPk(req.params.id);
         if (!usuario) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
         res.json(usuario);
     } catch (error) {
-        console.error('Error al obtener usuario:', error);
         res.status(500).json({ error: 'Error al obtener usuario' });
     }
 };
 
 const actualizarUsuario = async (req, res) => {
     try {
-        const usuarioActualizado = await Usuario.actualizar(req.params.id, req.body);
+        const [actualizado] = await Usuario.update(req.body, {
+            where: { id: req.params.id }
+        });
+        if (!actualizado) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+        const usuarioActualizado = await Usuario.findByPk(req.params.id);
         res.json(usuarioActualizado);
     } catch (error) {
-        console.error('Error al actualizar usuario:', error);
         res.status(500).json({ error: 'Error al actualizar usuario' });
     }
 };
 
 const eliminarUsuario = async (req, res) => {
     try {
-        await Usuario.eliminar(req.params.id);
+        const eliminado = await Usuario.destroy({
+            where: { id: req.params.id }
+        });
+        if (!eliminado) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
         res.status(204).send();
     } catch (error) {
-        console.error('Error al eliminar usuario:', error);
         res.status(500).json({ error: 'Error al eliminar usuario' });
     }
 };
 
 const listarUsuarios = async (req, res) => {
     try {
-        const usuarios = await Usuario.listar();
+        const usuarios = await Usuario.findAll({
+            where: { estado: 1 }
+        });
         res.json(usuarios);
     } catch (error) {
-        console.error('Error al listar usuarios:', error);
         res.status(500).json({ error: 'Error al listar usuarios' });
     }
 };
 
 const login = async (req, res) => {
     try {
-        console.log("\n--- NUEVO INTENTO DE LOGIN ---");
-        console.log("[DEBUG] Datos recibidos en body:", req.body);
-        
         const { nombre_usuario, password } = req.body;
 
         if (!nombre_usuario || !password) {
             return res.status(400).json({ error: 'Faltan datos' });
         }
 
-        const usuario = await Usuario.login(nombre_usuario, password);
+        const usuario = await Usuario.findOne({
+            where: { nombre_usuario, estado: 1 }
+        });
 
         if (!usuario) {
             return res.status(401).json({ error: 'Credenciales inválidas o usuario inactivo' });
         }
 
-        res.json({ mensaje: 'Login exitoso', usuario });
+        const hashCompatible = usuario.password.replace(/^\$2y\$/, '$2a$'); 
+        const validPassword = await bcrypt.compare(password, hashCompatible);
+
+        if (validPassword) {
+            await usuario.update({ ultimo_login: new Date() });
+            
+            const usuarioData = usuario.toJSON();
+            delete usuarioData.password;
+            
+            return res.json({ mensaje: 'Login exitoso', usuario: usuarioData });
+        }
+
+        return res.status(401).json({ error: 'Credenciales inválidas o usuario inactivo' });
 
     } catch (error) {
-        console.error('Error en el login:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 };
