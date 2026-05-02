@@ -1,4 +1,4 @@
-# 🚀 RecruitAPI - Backend de Gestión de Reclutamiento
+# RecruitAPI - Backend de Gestión de Reclutamiento
 
 Una API RESTful robusta desarrollada en **Node.js** y **Express** para la administración integral de procesos de selección de personal. Este proyecto nace como una migración evolutiva desde una arquitectura monolítica en PHP hacia un entorno JavaScript moderno, asíncrono y transaccional, utilizando **Sequelize ORM** para la gestión de la base de datos MySQL.
 
