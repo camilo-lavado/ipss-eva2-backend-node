@@ -1,0 +1,725 @@
+{
+  "info": {
+    "_postman_id": "58f62bef-a38c-424e-8460-745de25ab37b",
+    "name": "EVA2 API Collection",
+    "description": "Postman collection for EVA2 recruitment system API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "34193200"
+  },
+  "item": [
+    {
+      "name": "Candidatos",
+      "item": [
+        {
+          "name": "Listar Candidatos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/candidatos/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "candidatos",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Candidato",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/candidatos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "candidatos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Candidato",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Juan\",\n  \"apellidos\": \"Pérez Silva\",\n  \"email\": \"juan.perez@email.cl\",\n  \"telefono\": \"+56912345678\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/candidatos/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "candidatos",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Candidato",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Javier\",\n  \"apellidos\": \"Pavez Muñoz\",\n  \"email\": \"javier.actualizado@email.cl\",\n  \"telefono\": \"+56987554321\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/candidatos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "candidatos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Candidato",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/candidatos/5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "candidatos",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cargos",
+      "item": [
+        {
+          "name": "Listar Cargos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cargos/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cargos",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Cargo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cargos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cargos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Cargo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Desarrollador Fullstack\",\n  \"departamento\": \"Tecnología\",\n  \"estado\": \"ABIERTO\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cargos/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cargos",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Cargo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Desarrollador Fullstack Senior\",\n  \"departamento\": \"Tecnología\",\n  \"estado\": \"CERRADO\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cargos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cargos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Cargo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cargos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cargos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Entrevistadores",
+      "item": [
+        {
+          "name": "Listar Entrevistadores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/entrevistadores/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "entrevistadores",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Entrevistador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/entrevistadores/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "entrevistadores",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Entrevistador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Cristian\",\n  \"apellidos\": \"Fuenzalida\",\n  \"email\": \"cfuenzalida@empresa.cl\",\n  \"especialidad\": \"Recursos Humanos\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/entrevistadores/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "entrevistadores",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Entrevistador",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Cristian\",\n  \"apellidos\": \"Fuenzalida Silva\",\n  \"email\": \"cfuenzalida@empresa.cl\",\n  \"especialidad\": \"Recursos Humanos\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/entrevistadores/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "entrevistadores",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Entrevistador",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/entrevistadores/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "entrevistadores",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Entrevistas",
+      "item": [
+        {
+          "name": "Listar Entrevistas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/entrevistas/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "entrevistas",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Entrevista",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/entrevistas/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "entrevistas",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Entrevista",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cargo_id\": 1,\n  \"candidato_id\": 1,\n  \"entrevistador_id\": 2,\n  \"fecha_hora\": \"2026-05-10 10:30:00\",\n  \"estado\": \"PROGRAMADA\",\n  \"observaciones\": \"Entrevista técnica\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/entrevistas/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "entrevistas",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Entrevista",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cargo_id\": 1,\n  \"candidato_id\": 1,\n  \"entrevistador_id\": 2,\n  \"fecha_hora\": \"2026-05-10 10:30:00\",\n  \"estado\": \"REALIZADA\",\n  \"observaciones\": \"Candidato con buen perfil, pasa a la siguiente etapa\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/entrevistas/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "entrevistas",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Entrevista",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/entrevistas/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "entrevistas",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Experiencias",
+      "item": [
+        {
+          "name": "Listar Experiencias",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/experiencias/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "experiencias",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Experiencia",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/experiencias/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "experiencias",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Experiencia",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"candidato_id\": 1,\n  \"empresa\": \"Banco Estado\",\n  \"cargo_ejercido\": \"Desarrollador Junior\",\n  \"meses_duracion\": 24\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/experiencias/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "experiencias",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Experiencia",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"candidato_id\": 1,\n  \"empresa\": \"Banco Estado\",\n  \"cargo_ejercido\": \"Desarrollador Senior\",\n  \"meses_duracion\": 36\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/experiencias/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "experiencias",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Experiencia",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/experiencias/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "experiencias",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre_usuario\": \"l_aravena\",\r\n    \"password\": \"password\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/usuarios/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "usuarios",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/usuarios/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Usuario",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/usuarios/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_usuario\": \"nuevo_usuario\",\n  \"password\": \"password123\",\n  \"rol\": \"ENTREVISTADOR\",\n  \"entrevistador_id\": 2,\n  \"estado\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_usuario\": \"admin_sistema\",\n  \"password\": \"nuevo_password\",\n  \"rol\": \"ADMIN\",\n  \"entrevistador_id\": null,\n  \"estado\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/usuarios/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:3307/eva2"
+    }
+  ]
+}
