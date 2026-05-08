@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const usuariosRoutes = require('./usuarios');
 const candidatosRoutes = require('./candidatos');
 const cargosRoutes = require('./cargos');
@@ -22,7 +23,7 @@ router.use('/entrevistadores', entrevistadoresRoutes);
 router.use('/entrevistas', entrevistasRoutes);
 router.use('/experiencias', experienciasRoutes);
 
-router.use('*', (req, res) => {
+router.use((req, res) => {
     res.status(404).json({ error: 'Ruta no encontrada en la API' });
 });
 
