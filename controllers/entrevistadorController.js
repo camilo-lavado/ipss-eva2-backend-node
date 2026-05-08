@@ -1,4 +1,5 @@
 const Entrevistador = require('../models/entrevistador');
+const sequelize = require('../config/db');
 const { Op } = require('sequelize');
 
 const getEntrevistadores = async (req, res) => {
@@ -24,56 +25,92 @@ const getEntrevistadorById = async (req, res) => {
 
 const createEntrevistador = async (req, res) => {
     try {
-        const { nombres, email } = req.body;
-        if (!nombres || !email) {
-            return res.status(400).json({ error: 'Nombres y Email son obligatorios' });
-        }
-        const existeEmail = await Entrevistador.findOne({ where: { email } });
-        if (existeEmail) {
-            return res.status(400).json({ error: 'El email ya está registrado' });
-        }
-        const nuevoEntrevistador = await Entrevistador.create(req.body);
-        res.status(201).json(nuevoEntrevistador);
+        const resultado = await sequelize.transaction(async (t) => {
+            const { nombres, email } = req.body;
+            
+            if (!nombres || !email) {
+                const error = new Error('Nombres y Email son obligatorios');
+                error.status = 400;
+                throw error;
+            }
+            
+            const existeEmail = await Entrevistador.findOne({ 
+                where: { email },
+                transaction: t
+            });
+            
+            if (existeEmail) {
+                const error = new Error('El email ya está registrado');
+                error.status = 400;
+                throw error;
+            }
+            
+            return await Entrevistador.create(req.body, { transaction: t });
+        });
+        res.status(201).json(resultado);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(error.status || 500).json({ error: error.message });
     }
 };
 
 const updateEntrevistador = async (req, res) => {
     try {
-        const { nombres, email } = req.body;
-        if (!nombres || !email) {
-            return res.status(400).json({ error: 'Nombres y Email son obligatorios' });
-        }
-        const existeEmail = await Entrevistador.findOne({ 
-            where: { 
-                email, 
-                id: { [Op.ne]: req.params.id } 
-            } 
+        await sequelize.transaction(async (t) => {
+            const { nombres, email } = req.body;
+            
+            if (!nombres || !email) {
+                const error = new Error('Nombres y Email son obligatorios');
+                error.status = 400;
+                throw error;
+            }
+            
+            const existeEmail = await Entrevistador.findOne({ 
+                where: { email, id: { [Op.ne]: req.params.id } },
+                transaction: t
+            });
+            
+            if (existeEmail) {
+                const error = new Error('El email ya está registrado por otro entrevistador');
+                error.status = 400;
+                throw error;
+            }
+            
+            const [actualizado] = await Entrevistador.update(req.body, { 
+                where: { id: req.params.id },
+                transaction: t
+            });
+            
+            if (!actualizado) {
+                const error = new Error('Entrevistador no encontrado');
+                error.status = 404;
+                throw error;
+            }
         });
-        if (existeEmail) {
-            return res.status(400).json({ error: 'El email ya está registrado por otro entrevistador' });
-        }
-        const [actualizado] = await Entrevistador.update(req.body, { where: { id: req.params.id } });
-        if (!actualizado) {
-            return res.status(404).json({ error: 'Entrevistador no encontrado' });
-        }
+        
         const entrevistadorActualizado = await Entrevistador.findByPk(req.params.id);
         res.json(entrevistadorActualizado);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(error.status || 500).json({ error: error.message });
     }
 };
 
 const deleteEntrevistador = async (req, res) => {
     try {
-        const eliminado = await Entrevistador.destroy({ where: { id: req.params.id } });
-        if (!eliminado) {
-            return res.status(404).json({ error: 'Entrevistador no encontrado' });
-        }
+        await sequelize.transaction(async (t) => {
+            const eliminado = await Entrevistador.destroy({ 
+                where: { id: req.params.id },
+                transaction: t
+            });
+            
+            if (!eliminado) {
+                const error = new Error('Entrevistador no encontrado');
+                error.status = 404;
+                throw error;
+            }
+        });
         res.json({ message: 'Entrevistador eliminado' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(error.status || 500).json({ error: error.message });
     }
 };
 

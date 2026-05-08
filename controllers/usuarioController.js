@@ -1,10 +1,13 @@
 const Usuario = require('../models/usuario');
+const sequelize = require('../config/db');
 const bcrypt = require('bcrypt');
 
 const crearUsuario = async (req, res) => {
     try {
-        const nuevoUsuario = await Usuario.create(req.body);
-        res.status(201).json(nuevoUsuario);
+        const resultado = await sequelize.transaction(async (t) => {
+            return await Usuario.create(req.body, { transaction: t });
+        });
+        res.status(201).json(resultado);
     } catch (error) {
         res.status(500).json({ error: 'Error al crear usuario' });
     }
@@ -24,30 +27,43 @@ const obtenerUsuarioPorId = async (req, res) => {
 
 const actualizarUsuario = async (req, res) => {
     try {
-        const [actualizado] = await Usuario.update(req.body, {
-            where: { id: req.params.id }
+        await sequelize.transaction(async (t) => {
+            const [actualizado] = await Usuario.update(req.body, {
+                where: { id: req.params.id },
+                transaction: t
+            });
+            
+            if (!actualizado) {
+                const error = new Error('Usuario no encontrado');
+                error.status = 404;
+                throw error;
+            }
         });
-        if (!actualizado) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
+        
         const usuarioActualizado = await Usuario.findByPk(req.params.id);
         res.json(usuarioActualizado);
     } catch (error) {
-        res.status(500).json({ error: 'Error al actualizar usuario' });
+        res.status(error.status || 500).json({ error: error.message || 'Error al actualizar usuario' });
     }
 };
 
 const eliminarUsuario = async (req, res) => {
     try {
-        const eliminado = await Usuario.destroy({
-            where: { id: req.params.id }
+        await sequelize.transaction(async (t) => {
+            const eliminado = await Usuario.destroy({
+                where: { id: req.params.id },
+                transaction: t
+            });
+            
+            if (!eliminado) {
+                const error = new Error('Usuario no encontrado');
+                error.status = 404;
+                throw error;
+            }
         });
-        if (!eliminado) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
         res.status(204).send();
     } catch (error) {
-        res.status(500).json({ error: 'Error al eliminar usuario' });
+        res.status(error.status || 500).json({ error: error.message || 'Error al eliminar usuario' });
     }
 };
 
@@ -70,30 +86,38 @@ const login = async (req, res) => {
             return res.status(400).json({ error: 'Faltan datos' });
         }
 
-        const usuario = await Usuario.findOne({
-            where: { nombre_usuario, estado: 1 }
-        });
+        const resultado = await sequelize.transaction(async (t) => {
+            const usuario = await Usuario.findOne({
+                where: { nombre_usuario, estado: 1 },
+                transaction: t
+            });
 
-        if (!usuario) {
-            return res.status(401).json({ error: 'Credenciales inválidas o usuario inactivo' });
-        }
+            if (!usuario) {
+                const error = new Error('Credenciales inválidas o usuario inactivo');
+                error.status = 401;
+                throw error;
+            }
 
-        const hashCompatible = usuario.password.replace(/^\$2y\$/, '$2a$'); 
-        const validPassword = await bcrypt.compare(password, hashCompatible);
+            const hashCompatible = usuario.password.replace(/^\$2y\$/, '$2a$'); 
+            const validPassword = await bcrypt.compare(password, hashCompatible);
 
-        if (validPassword) {
-            await usuario.update({ ultimo_login: new Date() });
+            if (!validPassword) {
+                const error = new Error('Credenciales inválidas o usuario inactivo');
+                error.status = 401;
+                throw error;
+            }
+
+            await usuario.update({ ultimo_login: new Date() }, { transaction: t });
             
             const usuarioData = usuario.toJSON();
             delete usuarioData.password;
-            
-            return res.json({ mensaje: 'Login exitoso', usuario: usuarioData });
-        }
+            return usuarioData;
+        });
 
-        return res.status(401).json({ error: 'Credenciales inválidas o usuario inactivo' });
+        res.json({ mensaje: 'Login exitoso', usuario: resultado });
 
     } catch (error) {
-        res.status(500).json({ error: 'Error interno del servidor' });
+        res.status(error.status || 500).json({ error: error.message || 'Error interno del servidor' });
     }
 };
 

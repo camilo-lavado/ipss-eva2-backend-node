@@ -1,4 +1,5 @@
-const Entrevista = require('../models/entrevista');
+const { Entrevista, sequelize } = require('../models');
+
 
 const getEntrevistas = async (req, res) => {
     try {
@@ -21,48 +22,86 @@ const getEntrevistaById = async (req, res) => {
     }
 };
 
+
 const createEntrevista = async (req, res) => {
     try {
-        const { cargo_id, candidato_id, entrevistador_id, fecha_hora } = req.body;
-        if (!cargo_id || !candidato_id || !entrevistador_id || !fecha_hora) {
-            return res.status(400).json({ error: 'Faltan campos obligatorios' });
-        }
-        const data = { ...req.body };
-        if (!data.estado) data.estado = 'PROGRAMADA';
-        const nuevaEntrevista = await Entrevista.create(data);
-        res.status(201).json(nuevaEntrevista);
+        const resultado = await sequelize.transaction(async (t) => {
+            const { cargo_id, candidato_id, entrevistador_id, fecha_hora } = req.body;
+            
+            if (!cargo_id || !candidato_id || !entrevistador_id || !fecha_hora) {
+                const error = new Error('Faltan campos obligatorios');
+                error.status = 400;
+                throw error;
+            }
+
+            const data = { ...req.body };
+            if (!data.estado) data.estado = 'PROGRAMADA';
+
+            return await Entrevista.create(data, { transaction: t });
+        });
+
+        res.status(201).json(resultado);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(error.status || 500).json({ error: error.message });
     }
 };
 
+
 const updateEntrevista = async (req, res) => {
     try {
-        const { cargo_id, candidato_id, entrevistador_id, fecha_hora, estado } = req.body;
-        if (!cargo_id || !candidato_id || !entrevistador_id || !fecha_hora || !estado) {
-            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
-        }
-        const [actualizado] = await Entrevista.update(req.body, { where: { id: req.params.id } });
-        if (!actualizado) {
-            return res.status(404).json({ error: 'Entrevista no encontrada' });
-        }
+        await sequelize.transaction(async (t) => {
+            const { cargo_id, candidato_id, entrevistador_id, fecha_hora, estado } = req.body;
+            
+            if (!cargo_id || !candidato_id || !entrevistador_id || !fecha_hora || !estado) {
+                const error = new Error('Todos los campos son obligatorios');
+                error.status = 400;
+                throw error;
+            }
+
+            const [actualizado] = await Entrevista.update(req.body, { 
+                where: { id: req.params.id },
+                transaction: t 
+            });
+
+            if (!actualizado) {
+                const error = new Error('Entrevista no encontrada');
+                error.status = 404;
+                throw error;
+            }
+        });
+
         const entrevistaActualizada = await Entrevista.findByPk(req.params.id);
         res.json(entrevistaActualizada);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(error.status || 500).json({ error: error.message });
     }
 };
 
 const deleteEntrevista = async (req, res) => {
     try {
-        const eliminado = await Entrevista.destroy({ where: { id: req.params.id } });
-        if (!eliminado) {
-            return res.status(404).json({ error: 'Entrevista no encontrada' });
-        }
-        res.json({ message: 'Entrevista eliminada' });
+        await sequelize.transaction(async (t) => {
+            const eliminado = await Entrevista.destroy({ 
+                where: { id: req.params.id },
+                transaction: t 
+            });
+
+            if (!eliminado) {
+                const error = new Error('Entrevista no encontrada');
+                error.status = 404;
+                throw error;
+            }
+        });
+
+        res.json({ message: 'Entrevista eliminada correctamente' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(error.status || 500).json({ error: error.message });
     }
 };
 
-module.exports = { getEntrevistas, getEntrevistaById, createEntrevista, updateEntrevista, deleteEntrevista };
+module.exports = { 
+    getEntrevistas, 
+    getEntrevistaById, 
+    createEntrevista, 
+    updateEntrevista, 
+    deleteEntrevista 
+};

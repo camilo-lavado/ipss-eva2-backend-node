@@ -1,4 +1,5 @@
 const Experiencia = require('../models/experiencia');
+const sequelize = require('../config/db');
 
 const getExperiencias = async (req, res) => {
     try {
@@ -23,43 +24,70 @@ const getExperienciaById = async (req, res) => {
 
 const createExperiencia = async (req, res) => {
     try {
-        const { empresa, cargo_ejercido } = req.body;
-        if (!empresa || !cargo_ejercido) {
-            return res.status(400).json({ error: 'Faltan campos obligatorios' });
-        }
-        const nuevaExperiencia = await Experiencia.create(req.body);
-        res.status(201).json(nuevaExperiencia);
+        const resultado = await sequelize.transaction(async (t) => {
+            const { empresa, cargo_ejercido } = req.body;
+            
+            if (!empresa || !cargo_ejercido) {
+                const error = new Error('Faltan campos obligatorios');
+                error.status = 400;
+                throw error;
+            }
+            
+            return await Experiencia.create(req.body, { transaction: t });
+        });
+        res.status(201).json(resultado);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(error.status || 500).json({ error: error.message });
     }
 };
 
 const updateExperiencia = async (req, res) => {
     try {
-        const { empresa, cargo_ejercido } = req.body;
-        if (!empresa || !cargo_ejercido) {
-            return res.status(400).json({ error: 'Todos los campos obligatorios deben estar presentes' });
-        }
-        const [actualizado] = await Experiencia.update(req.body, { where: { id: req.params.id } });
-        if (!actualizado) {
-            return res.status(404).json({ error: 'Experiencia no encontrada' });
-        }
+        await sequelize.transaction(async (t) => {
+            const { empresa, cargo_ejercido } = req.body;
+            
+            if (!empresa || !cargo_ejercido) {
+                const error = new Error('Todos los campos obligatorios deben estar presentes');
+                error.status = 400;
+                throw error;
+            }
+            
+            const [actualizado] = await Experiencia.update(req.body, { 
+                where: { id: req.params.id },
+                transaction: t
+            });
+            
+            if (!actualizado) {
+                const error = new Error('Experiencia no encontrada');
+                error.status = 404;
+                throw error;
+            }
+        });
+        
         const experienciaActualizada = await Experiencia.findByPk(req.params.id);
         res.json(experienciaActualizada);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(error.status || 500).json({ error: error.message });
     }
 };
 
 const deleteExperiencia = async (req, res) => {
     try {
-        const eliminado = await Experiencia.destroy({ where: { id: req.params.id } });
-        if (!eliminado) {
-            return res.status(404).json({ error: 'Experiencia no encontrada' });
-        }
+        await sequelize.transaction(async (t) => {
+            const eliminado = await Experiencia.destroy({ 
+                where: { id: req.params.id },
+                transaction: t
+            });
+            
+            if (!eliminado) {
+                const error = new Error('Experiencia no encontrada');
+                error.status = 404;
+                throw error;
+            }
+        });
         res.json({ message: 'Experiencia eliminada' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(error.status || 500).json({ error: error.message });
     }
 };
 
