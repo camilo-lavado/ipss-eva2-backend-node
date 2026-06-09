@@ -1,6 +1,5 @@
 const { Entrevista, sequelize } = require('../models');
 
-
 const getEntrevistas = async (req, res) => {
     try {
         const entrevistas = await Entrevista.findAll();
@@ -22,47 +21,29 @@ const getEntrevistaById = async (req, res) => {
     }
 };
 
-
 const createEntrevista = async (req, res) => {
     try {
         const resultado = await sequelize.transaction(async (t) => {
-            const { cargo_id, candidato_id, entrevistador_id, fecha_hora } = req.body;
-            
-            if (!cargo_id || !candidato_id || !entrevistador_id || !fecha_hora) {
-                const error = new Error('Faltan campos obligatorios');
-                error.status = 400;
-                throw error;
-            }
-
             const data = { ...req.body };
             if (!data.estado) data.estado = 'PROGRAMADA';
-
             return await Entrevista.create(data, { transaction: t });
         });
-
         res.status(201).json(resultado);
     } catch (error) {
+        if (error.name === 'SequelizeForeignKeyConstraintError') {
+            return res.status(400).json({ error: 'cargo_id, candidato_id o entrevistador_id no existen' });
+        }
         res.status(error.status || 500).json({ error: error.message });
     }
 };
 
-
 const updateEntrevista = async (req, res) => {
     try {
         await sequelize.transaction(async (t) => {
-            const { cargo_id, candidato_id, entrevistador_id, fecha_hora, estado } = req.body;
-            
-            if (!cargo_id || !candidato_id || !entrevistador_id || !fecha_hora || !estado) {
-                const error = new Error('Todos los campos son obligatorios');
-                error.status = 400;
-                throw error;
-            }
-
-            const [actualizado] = await Entrevista.update(req.body, { 
+            const [actualizado] = await Entrevista.update(req.body, {
                 where: { id: req.params.id },
-                transaction: t 
+                transaction: t
             });
-
             if (!actualizado) {
                 const error = new Error('Entrevista no encontrada');
                 error.status = 404;
@@ -80,28 +61,17 @@ const updateEntrevista = async (req, res) => {
 const deleteEntrevista = async (req, res) => {
     try {
         await sequelize.transaction(async (t) => {
-            const eliminado = await Entrevista.destroy({ 
-                where: { id: req.params.id },
-                transaction: t 
-            });
-
+            const eliminado = await Entrevista.destroy({ where: { id: req.params.id }, transaction: t });
             if (!eliminado) {
                 const error = new Error('Entrevista no encontrada');
                 error.status = 404;
                 throw error;
             }
         });
-
         res.json({ message: 'Entrevista eliminada correctamente' });
     } catch (error) {
         res.status(error.status || 500).json({ error: error.message });
     }
 };
 
-module.exports = { 
-    getEntrevistas, 
-    getEntrevistaById, 
-    createEntrevista, 
-    updateEntrevista, 
-    deleteEntrevista 
-};
+module.exports = { getEntrevistas, getEntrevistaById, createEntrevista, updateEntrevista, deleteEntrevista };

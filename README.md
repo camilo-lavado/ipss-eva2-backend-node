@@ -1,39 +1,42 @@
-# RecruitAPI - Backend de Gestión de Reclutamiento
+# RecruitAPI — Backend de Gestión de Reclutamiento
 
-Una API RESTful robusta desarrollada en **Node.js** y **Express** para la administración integral de procesos de selección de personal. Este proyecto nace como una migración evolutiva desde una arquitectura monolítica en PHP hacia un entorno JavaScript moderno, asíncrono y transaccional, utilizando **Sequelize ORM** para la gestión de la base de datos MySQL.
+API RESTful desarrollada en **Node.js** y **Express** para la administración integral de procesos de selección de personal, con documentación interactiva Swagger integrada.
 
 ## Tecnologías Utilizadas
 
-* **Entorno de Ejecución:** Node.js
-* **Framework Web:** Express.js
-* **ORM:** Sequelize
-* **Base de Datos:** MySQL
-* **Seguridad:** Encriptación de contraseñas nativa (Bcrypt)
-* **Herramientas de Desarrollo:** Nodemon, Sequelize-CLI
+| Categoría | Tecnología |
+|---|---|
+| Entorno de ejecución | Node.js |
+| Framework web | Express.js 5 |
+| ORM | Sequelize 6 |
+| Base de datos | MySQL / MariaDB |
+| Seguridad | Bcrypt |
+| Documentación | swagger-jsdoc + swagger-ui-express |
+| Herramientas de desarrollo | Nodemon, Sequelize-CLI |
 
 ## Características Principales
 
-* **Arquitectura MVC Adaptada:** Separación clara de responsabilidades entre Rutas, Controladores y Modelos.
-* **Integridad Referencial:** Gestión estricta de llaves foráneas (`candidato_id`, `cargo_id`, `entrevistador_id`) mediante Sequelize y validaciones previas al guardado.
-* **Manejo de Errores Estandarizado:** Respuestas JSON consistentes con códigos de estado HTTP precisos (200, 201, 400, 401, 404, 500).
-* **Migraciones Automatizadas:** Control de versiones de la base de datos mediante scripts cronológicos de Sequelize.
+- **Arquitectura MVC:** Separación estricta entre Rutas, Middlewares de validación, Controladores y Modelos.
+- **Capa de validadores:** Middleware dedicado (`middlewares/validators.js`) que valida campos obligatorios antes de llegar al controlador, devolviendo `400` con mensaje descriptivo.
+- **Códigos HTTP semánticos:** `201` en creaciones, `404` en recursos no encontrados, `409` en conflictos de unicidad (email o nombre de usuario duplicado), `400` en violaciones de FK.
+- **Transaccionalidad:** Todas las operaciones de escritura están envueltas en `sequelize.transaction()` para garantizar integridad ACID.
+- **Migraciones Code-First:** Control de versiones de la BD mediante scripts cronológicos de Sequelize.
+- **Documentación Swagger:** OpenAPI 3.0 disponible en `/api-docs` con schemas completos para las 6 entidades.
 
 ## Esquema de la Base de Datos
 
-El sistema gestiona 6 entidades principales fuertemente tipadas y relacionadas:
+El sistema gestiona 6 entidades relacionadas:
 
-1. `Usuarios` (Autenticación y roles)
-2. `Candidatos` (Postulantes)
-3. `Cargos` (Vacantes operativas)
-4. `Entrevistadores` (Equipo evaluador)
-5. `Entrevistas` (Agenda y estados de evaluación)
-6. `Experiencias` (Historial laboral de candidatos)
+1. `Usuarios` — autenticación y roles (ADMIN, ENTREVISTADOR)
+2. `Candidatos` — postulantes
+3. `Cargos` — vacantes (estado: 1=activo, 0=inactivo)
+4. `Entrevistadores` — equipo evaluador
+5. `Entrevistas` — agenda y estados (PROGRAMADA, REALIZADA, CANCELADA, PENDIENTE)
+6. `Experiencias` — historial laboral de candidatos
 
 ---
 
 ## Instalación y Configuración Local
-
-Sigue estos pasos para ejecutar el proyecto en tu entorno local.
 
 ### 1. Clonar el repositorio
 
@@ -43,90 +46,116 @@ git clone https://github.com/camilo-lavado/ipss-eva2-backend-node
 
 ### 2. Instalar dependencias
 
-Asegúrate de tener Node.js instalado y ejecuta:
-
 ```bash
 npm install
 ```
 
 ### 3. Configurar variables de entorno
 
-Crea un archivo `.env` en la raíz del proyecto basándote en la siguiente plantilla:
+Crea un archivo `.env` en la raíz del proyecto:
 
 ```env
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=tu_password_aqui
+DB_PASSWORD=
 DB_NAME=recruit_db
+PORT=3000
 ```
 
-### 4. Crear y poblar la base de datos (Migraciones)
+> Con XAMPP el usuario es `root` y la contraseña está vacía por defecto.
 
-Asegúrate de tener tu motor MySQL en ejecución. Este proyecto utiliza el enfoque *Code-First*. Ejecuta los siguientes comandos en orden para estructurar la base de datos:
+### 4. Crear y poblar la base de datos
 
 ```bash
-# Crear la base de datos (si no existe)
+# Crear la base de datos
 npx sequelize-cli db:create
 
-# Ejecutar las migraciones para crear las tablas con sus relaciones
+# Crear las tablas con sus relaciones
 npx sequelize-cli db:migrate
 
-# Ejecutar los seeders para poblar las tablas con datos de prueba
+# Poblar con datos de prueba
 npx sequelize-cli db:seed:all
 ```
 
 ### 5. Levantar el servidor
 
-Para iniciar la API en modo desarrollo (con recarga automática mediante Nodemon):
-
 ```bash
+# Desarrollo (con recarga automática)
 npm run dev
-```
 
-O en modo producción:
-
-```bash
+# Producción
 npm start
 ```
 
-El servidor estará escuchando por defecto en: `http://localhost:3000`
+El servidor escucha en: `http://localhost:3000`
 
 ---
 
-## Endpoints Principales
+## Documentación Swagger
 
-La API centraliza sus rutas bajo el prefijo `/api`. A continuación, un resumen de los módulos disponibles:
+Una vez levantado el servidor, la documentación interactiva de la API está disponible en:
 
-**Diagnóstico:**
-* `GET /api/health` - Verifica el estado general del servidor.
+```
+http://localhost:3000/api-docs
+```
 
-**Autenticación:**
-* `POST /api/usuarios/login` - Inicio de sesión.
-
-**Recursos CRUD (GET, POST, PUT, DELETE):**
-* `/api/usuarios`
-* `/api/candidatos`
-* `/api/cargos`
-* `/api/entrevistadores`
-* `/api/entrevistas`
-* `/api/experiencias`
-
-Para probar los endpoints, se recomienda importar la colección de Postman incluida en el repositorio (`EVA2 API Collection.postman_collection.json`).
+Incluye schemas de request/response para los 14 endpoints, ejemplos de payload y códigos de respuesta posibles (200, 201, 400, 401, 404, 409, 500).
 
 ---
 
-## Patrón Arquitectónico
+## Endpoints
 
-El flujo de una petición dentro del sistema sigue este ciclo de vida:
+Todas las rutas están bajo el prefijo `/api`.
 
-1. **Cliente:** Envía una solicitud HTTP con un payload JSON.
-2. **Enrutador (Routes):** Intercepta la URL, valida el método HTTP y redirige al controlador correspondiente.
-3. **Controlador (Controllers):** Evalúa la lógica de negocio, extrae los parámetros del `req.body` o la URL, e invoca al ORM.
-4. **Modelo (Sequelize):** Traduce la instrucción a sintaxis SQL de forma segura y ejecuta la transacción en la base de datos MySQL.
-5. **Respuesta:** El controlador captura el resultado (o la excepción en el bloque `catch`) y retorna el objeto JSON estructurado al cliente.
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/api/health` | Estado del servidor |
+| POST | `/api/usuarios/login` | Inicio de sesión |
+| GET/POST | `/api/usuarios` | Listar / crear usuarios |
+| GET/PUT/DELETE | `/api/usuarios/:id` | Leer / actualizar / eliminar usuario |
+| GET/POST | `/api/candidatos` | Listar / crear candidatos |
+| GET/PUT/DELETE | `/api/candidatos/:id` | Leer / actualizar / eliminar candidato |
+| GET/POST | `/api/cargos` | Listar / crear cargos |
+| GET/PUT/DELETE | `/api/cargos/:id` | Leer / actualizar / eliminar cargo |
+| GET/POST | `/api/entrevistadores` | Listar / crear entrevistadores |
+| GET/PUT/DELETE | `/api/entrevistadores/:id` | Leer / actualizar / eliminar entrevistador |
+| GET/POST | `/api/entrevistas` | Listar / crear entrevistas |
+| GET/PUT/DELETE | `/api/entrevistas/:id` | Leer / actualizar / eliminar entrevista |
+| GET/POST | `/api/experiencias` | Listar / crear experiencias |
+| GET/PUT/DELETE | `/api/experiencias/:id` | Leer / actualizar / eliminar experiencia |
+
+---
+
+## Flujo de una Petición
+
+```
+Cliente HTTP
+    ↓
+Router (routes/)          — mapeo de URL y método HTTP
+    ↓
+Validator middleware       — valida campos obligatorios → 400 si falta alguno
+    ↓
+Controller (controllers/) — lógica de negocio + transacción Sequelize
+    ↓
+Model (models/)           — ORM traduce a SQL
+    ↓
+MySQL
+    ↓
+Respuesta JSON estructurada
+```
+
+---
+
+## Credenciales de prueba (seeders)
+
+| Usuario | Contraseña | Rol |
+|---|---|---|
+| `admin_sistema` | `password` | ADMIN |
+| `l_aravena` | `password` | ENTREVISTADOR |
+| `s_errazuriz` | `password` | ENTREVISTADOR |
 
 ---
 
 **Autor:** Camilo Lavado / Instituto Profesional San Sebastián  
-**Fecha de Creación:** Mayo 2026
+**Fecha:** Mayo 2026

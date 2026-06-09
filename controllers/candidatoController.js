@@ -26,25 +26,15 @@ const getCandidatoById = async (req, res) => {
 const createCandidato = async (req, res) => {
     try {
         const resultado = await sequelize.transaction(async (t) => {
-            const { nombres, apellidos, email, telefono } = req.body;
-            
-            if (!nombres || !email) {
-                const error = new Error('Nombres y Email son obligatorios');
-                error.status = 400;
-                throw error;
-            }
-            
-            const existeEmail = await Candidato.findOne({ 
-                where: { email },
-                transaction: t 
-            });
-            
+            const { email } = req.body;
+
+            const existeEmail = await Candidato.findOne({ where: { email }, transaction: t });
             if (existeEmail) {
                 const error = new Error('El email ya está registrado');
-                error.status = 400;
+                error.status = 409;
                 throw error;
             }
-            
+
             return await Candidato.create(req.body, { transaction: t });
         });
         res.status(201).json(resultado);
@@ -56,37 +46,29 @@ const createCandidato = async (req, res) => {
 const updateCandidato = async (req, res) => {
     try {
         await sequelize.transaction(async (t) => {
-            const { nombres, email } = req.body;
-            
-            if (!nombres || !email) {
-                const error = new Error('Nombres y Email son obligatorios');
-                error.status = 400;
-                throw error;
-            }
-            
-            const existeEmail = await Candidato.findOne({ 
+            const { email } = req.body;
+
+            const existeEmail = await Candidato.findOne({
                 where: { email, id: { [Op.ne]: req.params.id } },
-                transaction: t 
+                transaction: t
             });
-            
             if (existeEmail) {
                 const error = new Error('El email ya está registrado por otro candidato');
-                error.status = 400;
+                error.status = 409;
                 throw error;
             }
-            
-            const [actualizado] = await Candidato.update(req.body, { 
+
+            const [actualizado] = await Candidato.update(req.body, {
                 where: { id: req.params.id },
                 transaction: t
             });
-            
             if (!actualizado) {
-                const error = new Error('Candidato no encontrado o no actualizado');
+                const error = new Error('Candidato no encontrado');
                 error.status = 404;
                 throw error;
             }
         });
-        
+
         const candidatoActualizado = await Candidato.findByPk(req.params.id);
         res.json(candidatoActualizado);
     } catch (error) {
@@ -97,11 +79,7 @@ const updateCandidato = async (req, res) => {
 const deleteCandidato = async (req, res) => {
     try {
         await sequelize.transaction(async (t) => {
-            const eliminado = await Candidato.destroy({ 
-                where: { id: req.params.id },
-                transaction: t
-            });
-            
+            const eliminado = await Candidato.destroy({ where: { id: req.params.id }, transaction: t });
             if (!eliminado) {
                 const error = new Error('Candidato no encontrado');
                 error.status = 404;

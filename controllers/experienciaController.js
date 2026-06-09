@@ -25,18 +25,13 @@ const getExperienciaById = async (req, res) => {
 const createExperiencia = async (req, res) => {
     try {
         const resultado = await sequelize.transaction(async (t) => {
-            const { empresa, cargo_ejercido } = req.body;
-            
-            if (!empresa || !cargo_ejercido) {
-                const error = new Error('Faltan campos obligatorios');
-                error.status = 400;
-                throw error;
-            }
-            
             return await Experiencia.create(req.body, { transaction: t });
         });
         res.status(201).json(resultado);
     } catch (error) {
+        if (error.name === 'SequelizeForeignKeyConstraintError') {
+            return res.status(400).json({ error: 'El candidato_id indicado no existe' });
+        }
         res.status(error.status || 500).json({ error: error.message });
     }
 };
@@ -44,26 +39,17 @@ const createExperiencia = async (req, res) => {
 const updateExperiencia = async (req, res) => {
     try {
         await sequelize.transaction(async (t) => {
-            const { empresa, cargo_ejercido } = req.body;
-            
-            if (!empresa || !cargo_ejercido) {
-                const error = new Error('Todos los campos obligatorios deben estar presentes');
-                error.status = 400;
-                throw error;
-            }
-            
-            const [actualizado] = await Experiencia.update(req.body, { 
+            const [actualizado] = await Experiencia.update(req.body, {
                 where: { id: req.params.id },
                 transaction: t
             });
-            
             if (!actualizado) {
                 const error = new Error('Experiencia no encontrada');
                 error.status = 404;
                 throw error;
             }
         });
-        
+
         const experienciaActualizada = await Experiencia.findByPk(req.params.id);
         res.json(experienciaActualizada);
     } catch (error) {
@@ -74,11 +60,7 @@ const updateExperiencia = async (req, res) => {
 const deleteExperiencia = async (req, res) => {
     try {
         await sequelize.transaction(async (t) => {
-            const eliminado = await Experiencia.destroy({ 
-                where: { id: req.params.id },
-                transaction: t
-            });
-            
+            const eliminado = await Experiencia.destroy({ where: { id: req.params.id }, transaction: t });
             if (!eliminado) {
                 const error = new Error('Experiencia no encontrada');
                 error.status = 404;

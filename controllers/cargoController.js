@@ -25,17 +25,8 @@ const getCargoById = async (req, res) => {
 const createCargo = async (req, res) => {
     try {
         const resultado = await sequelize.transaction(async (t) => {
-            const { titulo, departamento } = req.body;
-            
-            if (!titulo || !departamento) {
-                const error = new Error('Título y Departamento son obligatorios');
-                error.status = 400;
-                throw error;
-            }
-            
             const data = { ...req.body };
-            if (data.estado === undefined) data.estado = 1; 
-            
+            if (data.estado === undefined) data.estado = 1;
             return await Cargo.create(data, { transaction: t });
         });
         res.status(201).json(resultado);
@@ -47,26 +38,17 @@ const createCargo = async (req, res) => {
 const updateCargo = async (req, res) => {
     try {
         await sequelize.transaction(async (t) => {
-            const { titulo, departamento, estado } = req.body;
-            
-            if (!titulo || !departamento || estado === undefined) {
-                const error = new Error('Todos los campos son obligatorios');
-                error.status = 400;
-                throw error;
-            }
-            
-            const [actualizado] = await Cargo.update(req.body, { 
+            const [actualizado] = await Cargo.update(req.body, {
                 where: { id: req.params.id },
                 transaction: t
             });
-            
             if (!actualizado) {
-                const error = new Error('Cargo no encontrado o no actualizado');
+                const error = new Error('Cargo no encontrado');
                 error.status = 404;
                 throw error;
             }
         });
-        
+
         const cargoActualizado = await Cargo.findByPk(req.params.id);
         res.json(cargoActualizado);
     } catch (error) {
@@ -77,11 +59,7 @@ const updateCargo = async (req, res) => {
 const deleteCargo = async (req, res) => {
     try {
         await sequelize.transaction(async (t) => {
-            const eliminado = await Cargo.destroy({ 
-                where: { id: req.params.id },
-                transaction: t
-            });
-            
+            const eliminado = await Cargo.destroy({ where: { id: req.params.id }, transaction: t });
             if (!eliminado) {
                 const error = new Error('Cargo no encontrado');
                 error.status = 404;
@@ -91,7 +69,7 @@ const deleteCargo = async (req, res) => {
         res.json({ message: 'Cargo eliminado' });
     } catch (error) {
         if (error.name === 'SequelizeForeignKeyConstraintError') {
-            return res.status(400).json({ error: 'No se puede eliminar: el cargo tiene entrevistas asociadas.' });
+            return res.status(409).json({ error: 'No se puede eliminar: el cargo tiene entrevistas asociadas' });
         }
         res.status(error.status || 500).json({ error: error.message });
     }
